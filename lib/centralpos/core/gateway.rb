@@ -77,7 +77,7 @@ module Centralpos
         when Savon::HTTPError
           failed_response(error).merge(error: error.to_hash)
         when Errno::ENETUNREACH
-          failed_response(error).merge(error: error.to_hash)
+          unable_to_connect(error).merge(error: error.message)
         else
           raise error
         end
@@ -94,6 +94,14 @@ module Centralpos
       def failed_response(error)
         {
           response_code: error.http.code,
+          success: false,
+          result: nil
+        }
+      end
+
+      def unable_to_connect(error)
+        {
+          response_code: nil,
           success: false,
           result: nil
         }
