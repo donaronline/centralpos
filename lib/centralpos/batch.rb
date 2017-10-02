@@ -63,6 +63,8 @@ module Centralpos
       @card = data[:tarjeta]
       @card_id = data[:id_tarjeta]
       @period = data[:periodo]
+      @date_since = data[:fecha_presentacion_desde]
+      @date_until = data[:fecha_presentacion_hasta]
       @commerce_number = data[:numero_de_comercio]
       @repetition_number = data[:numero_repeticion]
       @status_id = data[:id_estado]
