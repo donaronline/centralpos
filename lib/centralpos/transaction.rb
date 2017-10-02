@@ -5,13 +5,25 @@ module Centralpos
     UPDATABLE_VALUES = [ :cc_number, :amount, :optional_data_1, :optional_data_2 ].freeze
     attr_reader :id, :owner_id
 
-    def initialize(owner_id:, cc_number:, amount:, optional_data_1: "", optional_data_2: "")
+    def self.load_it(data)
+      data.merge!({
+        owner_id:data[:id_user],
+        cc_number:data[:nro_tarjeta],
+        amount: data[:importe],
+        optional_data_1: data[:dato_opcional],
+        optional_data_2: data[:dato_opcional2]
+      })
+      new(data)
+    end
+
+    def initialize(owner_id:, cc_number:, amount:, optional_data_1: "", optional_data_2: "", **extras)
       @id = md5("#{owner_id}-#{cc_number}")
-      @owner_id = owner_id
+      @owner_id = owner_id.to_i
       @cc_number = cc_number
       @amount = amount.to_s
       @optional_data_1 = optional_data_1
       @optional_data_2 = optional_data_2
+      @extras = extras
     end
     UPDATABLE_VALUES.each do |key|
       define_method("#{key}=") do |value|

@@ -1,7 +1,7 @@
 module Centralpos
   class Batch
     include Utils
-    attr_reader :id, :card, :status, :period
+    attr_reader :id, :card_id, :card, :status, :period, :date_since, :date_until
 
     def initialize(account: nil, **params)
       @account = account if account && account.is_a?(Centralpos::Account)
@@ -12,7 +12,18 @@ module Centralpos
     def transactions
       ensure_account_valid!
 
-      @account.gateway.call(:list_registros, batch_params)
+      response = @account.gateway.call(:list_registros, batch_params)
+
+      if response[:success] && response[:error].nil?
+        return [] if response[:result][:lista_registros].nil?
+
+        entries = ensure_array(response[:result][:lista_registros][:registro])
+        entries.map do |entries_data|
+          Centralpos::Transaction.load_it(entries_data.merge(batch: self))
+        end
+      else
+        response
+      end
     end
 
     def add_transaction(transaction)
@@ -31,6 +42,17 @@ module Centralpos
       ensure_account_valid! && ensure_transaction_valid!(transaction)
       remove_transaction(transaction)
       add_transaction(transaction)
+    end
+
+    def has_transaction?(transaction)
+      transactions_by_id.key?(transaction.owner_id)
+    end
+
+    def should_process?(date_when = nil)
+      date_when = Time.now if date_when.nil? || !date_when.is_a?(DateTime)
+      date_when_utc = date_when.utc
+
+      (@date_since.utc <= date_when_utc) && (date_when_utc >= @date_until.utc - 1.day)
     end
 
     def process
@@ -54,7 +76,7 @@ module Centralpos
     end
 
     def attr_inspect
-      [ :id, :card, :period ]
+      [ :id, :card, :period, :date_until ]
     end
 
     def process_data(data)
@@ -69,6 +91,14 @@ module Centralpos
       @repetition_number = data[:numero_repeticion]
       @status_id = data[:id_estado]
       @status = data[:estado]
+    end
+
+    def transactions_by_id
+      return @transactions_by_id unless @transactions_by_id.nil?
+
+      @transactions_by_id = transactions.each_with_object({}) do |transaction, _hash|
+        _hash[transaction.owner_id] = transaction
+      end
     end
 
     def ensure_transaction_valid!(transaction)
