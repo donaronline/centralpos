@@ -48,11 +48,11 @@ module Centralpos
       transactions_by_id.key?(transaction.owner_id)
     end
 
-    def should_process?(date_when = nil)
+    def can_process?(date_when = nil)
       date_when = Time.now if date_when.nil? || !date_when.is_a?(DateTime)
       date_when_utc = date_when.utc
 
-      (@date_since.utc <= date_when_utc) && (date_when_utc >= @date_until.utc - 1.day)
+      (@date_since.utc <= date_when_utc) && (date_when_utc <= @date_until.utc)
     end
 
     def process
