@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = "Ruby wrapper for the CentralPos WebService"
   spec.description   = "Ruby wrapper for the CentralPos WebService"
-  spec.homepage      = "https://github.com/cavi21/centralpos"
+  spec.homepage      = "https://github.com/donaronline/centralpos"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
