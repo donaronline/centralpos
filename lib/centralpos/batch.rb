@@ -1,7 +1,7 @@
 module Centralpos
   class Batch
     include Utils
-    attr_reader :id, :card_id, :card, :status, :period, :date_since, :date_until
+    attr_reader :id, :card_id, :card, :status_id, :status, :period, :date_since, :date_until, :processed_date, :commerce_number
 
     def initialize(account: nil, **params)
       @account = account if account && account.is_a?(Centralpos::Account)
@@ -29,13 +29,25 @@ module Centralpos
     def add_transaction(transaction)
       ensure_account_valid! && ensure_transaction_valid!(transaction)
 
-      @account.gateway.call(:add_registro, batch_params.merge(transaction.to_add_params))
+      response = @account.gateway.call(:add_registro, batch_params.merge(transaction.to_add_params))
+
+      if response[:success] && response[:error].nil?
+        { transaction: transaction.to_hash }
+      else
+        response
+      end
     end
 
     def remove_transaction(transaction)
       ensure_account_valid! && ensure_transaction_valid!(transaction)
 
-      @account.gateway.call(:del_registro, batch_params.merge(transaction.to_remove_params))
+      response = @account.gateway.call(:del_registro, batch_params.merge(transaction.to_remove_params))
+
+      if response[:success] && response[:error].nil?
+        { transaction: transaction.to_hash }
+      else
+        response
+      end
     end
 
     def update_transaction(transaction)
@@ -46,6 +58,12 @@ module Centralpos
 
     def has_transaction?(transaction)
       transactions_by_id.key?(transaction.owner_id)
+    end
+
+    def get_transaction(transaction)
+      return unless has_transaction?(transaction)
+
+      { transaction: transactions_by_id.fetch(transaction.owner_id) }
     end
 
     def can_process?(date_when = nil)
@@ -59,12 +77,6 @@ module Centralpos
       ensure_account_valid!
 
       @account.gateway.call(:put_procesa_presentacion, batch_params)
-    end
-
-    def response
-      ensure_account_valid!
-
-      @account.gateway.call(:get_respuesta_presentacion, batch_params)
     end
 
     private
@@ -85,8 +97,9 @@ module Centralpos
       @card = data[:tarjeta]
       @card_id = data[:id_tarjeta]
       @period = data[:periodo]
-      @date_since = data[:fecha_presentacion_desde]
-      @date_until = data[:fecha_presentacion_hasta]
+      @date_since = Centralpos::Utils.in_time_zone(data[:fecha_presentacion_desde])
+      @date_until = Centralpos::Utils.in_time_zone(data[:fecha_presentacion_hasta])
+      @processed_date = Centralpos::Utils.in_time_zone(data[:fecha_de_procesamiento])
       @commerce_number = data[:numero_de_comercio]
       @repetition_number = data[:numero_repeticion]
       @status_id = data[:id_estado]

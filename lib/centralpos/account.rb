@@ -59,6 +59,8 @@ module Centralpos
     def open_batches
       response = @gateway.call(:get_presentaciones_abiertas)
       if response[:success] && response[:error].nil?
+        return [] unless response[:result][:lista_presentaciones]
+
         batches = ensure_array(response[:result][:lista_presentaciones][:presentacion])
         batches.map do |batch_data|
           Centralpos::Batch.new(batch_data.merge(account: self))
@@ -75,6 +77,8 @@ module Centralpos
     def past_batches
       response = @gateway.call(:get_estado_presentaciones)
       if response[:success] && response[:error].nil?
+        return [] unless response[:result][:lista_presentaciones]
+
         batches = ensure_array(response[:result][:lista_presentaciones][:presentacion_procesada])
         batches.map do |batch_data|
           Centralpos::Batch.new(batch_data.merge(account: self))

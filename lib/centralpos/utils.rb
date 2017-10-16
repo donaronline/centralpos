@@ -13,6 +13,12 @@ module Centralpos
       [stuff].flatten(1)
     end
 
+    def in_time_zone(datetime)
+      return datetime unless datetime && Centralpos.override_timezone
+
+      datetime.change(offset: Centralpos.default_timezone)
+    end
+
     private
 
     def attr_inspect
