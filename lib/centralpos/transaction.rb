@@ -19,17 +19,17 @@ module Centralpos
       new(data)
     end
 
-    def initialize(owner_id:, cc_number:, amount:, optional_data_1: "", optional_data_2: "", applied:, message:, card_error_code:, **extras)
+    def initialize(owner_id:, cc_number:, amount:, optional_data_1: "", optional_data_2: "", **extras)
       @id = md5("#{owner_id}-#{cc_number}")
       @owner_id = owner_id.to_i
       @cc_number = cc_number
       @amount = amount.to_s
       @optional_data_1 = optional_data_1
       @optional_data_2 = optional_data_2
-      @applied = applied
-      @message = message
-      @card_error_code = card_error_code
       @extras = extras
+      @applied = @extras[:applied]
+      @message = @extras[:message]
+      @card_error_code = @extras[:card_error_code]
     end
     UPDATABLE_VALUES.each do |key|
       define_method("#{key}=") do |value|
