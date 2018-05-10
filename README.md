@@ -1,4 +1,4 @@
-# Centralpos
+# Centralpos [![Build Status](https://travis-ci.org/donaronline/centralpos.svg?branch=master)](https://travis-ci.org/donaronline/centralpos)
 
 ## Installation
 
