@@ -78,6 +78,10 @@ module Centralpos
       [ :id ]
     end
 
+    def cc_number
+      @cc_number
+    end
+
     def md5(string)
       MD5_DIGEST.hexdigest(string)
     end
