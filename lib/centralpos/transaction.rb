@@ -11,7 +11,7 @@ module Centralpos
         cc_number:data[:nro_tarjeta],
         amount: data[:importe],
         optional_data_1: data[:dato_opcional],
-        optional_data_2: data[:dato_opcional_2],
+        optional_data_2: data[:dato_opcional2],
         applied: data[:aplicado],
         message: data[:observaciones],
         card_error_code: data[:cod_error_tarjeta]
