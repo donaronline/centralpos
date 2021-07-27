@@ -22,5 +22,8 @@ ehthumbs.db
 Thumbs.db
 dump.rdb
 
+# Ruby version
+/.ruby-version
+
 # GS folder for managing the Gemset
 .gs/
