@@ -32,7 +32,7 @@ module Centralpos
       response = @account.gateway.call(:add_registro, batch_params.merge(transaction.to_add_params))
 
       if response[:success] && response[:error].nil?
-        { transaction: transaction.to_hash }
+        { transaction: transaction.to_hash, response: response }
       else
         response
       end
@@ -44,7 +44,7 @@ module Centralpos
       response = @account.gateway.call(:del_registro, batch_params.merge(transaction.to_remove_params))
 
       if response[:success] && response[:error].nil?
-        { transaction: transaction.to_hash }
+        { transaction: transaction.to_hash, response: response }
       else
         response
       end
